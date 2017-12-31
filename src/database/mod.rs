@@ -14,7 +14,9 @@ impl Database {
         }
     }
 
-    pub fn table<T>(&mut self, name: &str) -> Table<T> {
+    pub fn table<T>(&mut self) -> Table<T> where T : DbModel {
+        let t = T::name();
+        let name = t.as_str();
         if !self.stores.contains_key(name) {
             let mut owned_string: String = "data/".to_owned();
             owned_string.push_str(name);
@@ -27,6 +29,10 @@ impl Database {
         }
         self.stores.get(name).unwrap().as_table::<T>()
     }
+}
+
+pub trait DbModel {
+    fn name() -> String;
 }
 
 pub struct Store {

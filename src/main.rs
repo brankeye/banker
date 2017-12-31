@@ -19,7 +19,7 @@ fn main() {
         tangerine.list_accounts();
 
         let mut db = Database::new();
-        let mut accounts = db.table::<Account>("account");
+        let mut accounts = db.table::<Account>();
         //accounts.add("1", "test").ok().unwrap();
         //let test = accounts.get("1").ok().unwrap();
         //println!("Should say test: {}", test);

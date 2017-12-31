@@ -1,6 +1,7 @@
 use std::f64;
 use uuid::Uuid;
 use super::identity::Identity;
+use super::database::DbModel;
 
 pub struct Account {
     id: Uuid,
@@ -43,6 +44,12 @@ impl Account {
             self.balance += amount;
             Ok(self.balance)
         }
+    }
+}
+
+impl DbModel for Account {
+    fn name() -> String {
+        String::from("account")
     }
 }
 
