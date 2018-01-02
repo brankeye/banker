@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use std::fs;
 use std::env;
 use std::collections::HashMap;
@@ -55,14 +56,14 @@ impl Store {
 
 pub struct Table<T> {
    directory: String,
-   data: Option<T>,
+   _phantom : PhantomData<T>,
 }
 
 impl<T> Table<T> {
     fn new(directory: String) -> Self {
         Table {
             directory,
-            data: None,
+            _phantom: PhantomData,
         }
     }
 
