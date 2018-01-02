@@ -1,6 +1,3 @@
-extern crate serde;
-extern crate serde_json;
-
 use std::fs;
 use std::env;
 use std::collections::HashMap;
