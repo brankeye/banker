@@ -1,3 +1,4 @@
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Identity {
     first_name: String,
     last_name: String,

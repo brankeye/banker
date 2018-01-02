@@ -1,7 +1,12 @@
+extern crate serde;
+extern crate serde_json;
+
 use std::fs;
 use std::env;
 use std::collections::HashMap;
 use std::rc::Rc;
+use serde::ser::Serialize;
+use serde::de::Deserialize;
 
 pub struct Database {
     stores: HashMap<String, Rc<Store>>,
@@ -14,7 +19,7 @@ impl Database {
         }
     }
 
-    pub fn table<T>(&mut self) -> Table<T> where T : DbModel {
+    pub fn table<'a, T>(&mut self) -> Table<T> where T : DbModel<'a> {
         let t = T::name();
         let name = t.as_str();
         if !self.stores.contains_key(name) {
@@ -31,7 +36,7 @@ impl Database {
     }
 }
 
-pub trait DbModel {
+pub trait DbModel<'a>: Serialize + Deserialize<'a> {
     fn name() -> String;
 }
 

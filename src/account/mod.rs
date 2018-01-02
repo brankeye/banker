@@ -3,6 +3,7 @@ use uuid::Uuid;
 use super::identity::Identity;
 use super::database::DbModel;
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Account {
     id: Uuid,
     balance: f64,
@@ -47,7 +48,7 @@ impl Account {
     }
 }
 
-impl DbModel for Account {
+impl<'a> DbModel<'a> for Account {
     fn name() -> String {
         String::from("account")
     }

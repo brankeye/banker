@@ -9,7 +9,7 @@ pub struct Bank {
     accounts: HashMap<Uuid, Account>,
 }
 
-impl Bank {
+impl<'a> Bank {
     pub fn new(name: String) -> Self {
         Bank {
             id: Uuid::new_v4(),
