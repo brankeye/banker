@@ -71,11 +71,7 @@ impl<T: DbModel> Table<T> {
 
     pub fn get(&mut self, key: &str) -> DbResult<T> {
         let mut data = String::new();
-        let mut path = "data/".to_owned();
-        path.push_str(T::name().as_str());
-        path.push_str(&"/");
-        path.push_str(key);
-        let mut f = File::open(path).expect("Unable to open file");
+        let mut f = File::open(Table::<T>::path(key)).expect("Unable to open file");
         f.read_to_string(&mut data).expect("Unable to read string");
         let data_as_str = data.as_str();
         let model: T = Table::deserialize(&data_as_str);
@@ -84,23 +80,23 @@ impl<T: DbModel> Table<T> {
 
     pub fn add(&mut self, key: &str, value: &T) -> DbResult<()> {
         let serialized = Table::serialize(value);
-        let mut path = "data/".to_owned();
-        path.push_str(T::name().as_str());
-        path.push_str(&"/");
-        path.push_str(key);
-        let mut file = File::create(path).unwrap();
+        let mut file = File::create(Table::<T>::path(key)).unwrap();
         file.write_all(serialized.as_bytes()).unwrap();
         Ok(())
     }
 
     pub fn delete(&mut self, key: &str) -> DbResult<()> {
+        fs::remove_file(Table::<T>::path(key));
+        Ok(())
+    }
+
+    fn path(key: &str) -> String {
         let mut path = "data/".to_owned();
         path.push_str(T::name().as_str());
         path.push_str(&"/");
         path.push_str(key);
-        fs::remove_file(path);
-        Ok(())
-    }
+        path
+    } 
 
     fn serialize(model: &T) -> String {
         serde_json::to_string(&model).unwrap().to_owned()
