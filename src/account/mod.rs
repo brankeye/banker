@@ -48,7 +48,7 @@ impl Account {
     }
 }
 
-impl<'a> DbModel<'a> for Account {
+impl DbModel for Account {
     fn name() -> String {
         String::from("account")
     }

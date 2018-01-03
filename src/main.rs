@@ -33,9 +33,10 @@ fn main() {
             String::from("123 Main St.")
         );
         let account = Account::new(identity);
-        let serialized = serde_json::to_string(&account).unwrap();
-        println!("serialized = {}", serialized);
+        let id: &str = &account.id().hyphenated().to_string()[..];
+        accounts.add(id, &account);
+        let acct: Account = accounts.get(id).ok().unwrap();
+        println!("The jazz: {:?}", acct);
 
-        let deserialized: Account = serde_json::from_str(&serialized).unwrap();
-        println!("deserialized = {:?}", deserialized);        
+        accounts.delete(id).ok().unwrap();
 }
