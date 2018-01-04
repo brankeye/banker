@@ -38,5 +38,5 @@ fn main() {
         let acct: Account = accounts.get(id).ok().unwrap();
         println!("The jazz: {:?}", acct);
 
-        accounts.delete(id).ok().unwrap();
+        //accounts.delete(id).ok().unwrap();
 }

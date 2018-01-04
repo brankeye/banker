@@ -24,13 +24,13 @@ impl Database {
         let t = T::name();
         let name = t.as_str();
         if !self.stores.contains_key(name) {
-            let mut owned_string: String = "data/".to_owned();
-            owned_string.push_str(name);
-            if let Err(e) = fs::create_dir_all(owned_string) {
+            let mut directory: String = "data/".to_owned();
+            directory.push_str(name);
+            if let Err(e) = fs::create_dir_all(&directory) {
                 println!("Failed to make dir. {:?}", e);
             }
-            let store = Store::new(name.to_owned());
-            self.stores.entry(name.to_string()).or_insert(Rc::new(store));
+            let store = Rc::new(Store::new(directory.to_owned()));
+            self.stores.entry(name.to_string()).or_insert(store);
         }
         self.stores.get(name).unwrap().as_table::<T>()
     }
@@ -71,7 +71,7 @@ impl<T: DbModel> Table<T> {
 
     pub fn get(&mut self, key: &str) -> DbResult<T> {
         let mut data = String::new();
-        let mut f = File::open(Table::<T>::path(key)).expect("Unable to open file");
+        let mut f = File::open(self.path(key)).expect("Unable to open file");
         f.read_to_string(&mut data).expect("Unable to read string");
         let data_as_str = data.as_str();
         let model: T = Table::deserialize(&data_as_str);
@@ -80,21 +80,21 @@ impl<T: DbModel> Table<T> {
 
     pub fn add(&mut self, key: &str, value: &T) -> DbResult<()> {
         let serialized = Table::serialize(value);
-        let mut file = File::create(Table::<T>::path(key)).unwrap();
+        let mut file = File::create(self.path(key)).unwrap();
         file.write_all(serialized.as_bytes()).unwrap();
         Ok(())
     }
 
     pub fn delete(&mut self, key: &str) -> DbResult<()> {
-        fs::remove_file(Table::<T>::path(key));
+        fs::remove_file(self.path(key));
         Ok(())
     }
 
-    fn path(key: &str) -> String {
-        let mut path = "data/".to_owned();
-        path.push_str(T::name().as_str());
+    fn path(&self, key: &str) -> String {
+        let mut path = self.directory.clone();
         path.push_str(&"/");
         path.push_str(key);
+        path.push_str(&".json");
         path
     } 
 
