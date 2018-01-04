@@ -9,6 +9,23 @@ use banker::identity::Identity;
 use banker::bank::Bank;
 use banker::account::Account;
 use banker::database::Database;
+use banker::database::Table;
+
+struct Db {
+    database: Database,
+}
+
+impl Db {
+    pub fn new() -> Self {
+        Db {
+            database: Database::new()
+        }
+    }
+
+    pub fn accounts(&mut self) -> Table<Account> {
+        self.database.table::<Account>()
+    }
+}
 
 fn main() {
         let identity = Identity::new(
@@ -23,8 +40,8 @@ fn main() {
         tangerine.add_account(account).ok().unwrap();
         tangerine.list_accounts();
 
-        let mut db = Database::new();
-        let mut accounts = db.table::<Account>();
+        let mut db = Db::new();
+        let mut accounts = db.accounts();
  
         let identity = Identity::new(
             String::from("Jeff"), 
