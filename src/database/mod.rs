@@ -69,17 +69,27 @@ impl<T: DbModel> Table<T> {
         }
     }
 
+    // 1. Validate input key.
+    // 2. Open file at path.
+    // 3. Read file as json.
+    // 4. Deserialize json to model.
     pub fn get(&mut self, key: &str) -> DbResult<T> {
         let mut data = String::new();
-        let mut f = File::open(self.path(key)).expect("Unable to open file");
-        f.read_to_string(&mut data).expect("Unable to read string");
-        let data_as_str = data.as_str();
-        let model: T = Table::deserialize(&data_as_str);
-        Ok(model)
+        match File::open(self.path(key)) {
+            Ok(mut file) => {
+                if let Err(err) = file.read_to_string(&mut data) {
+                    return Err(DbError::BadFile); 
+                }
+                let json = data.as_str();
+                let model: T = Table::deserialize(&json).ok().unwrap();
+                Ok(model)
+            },
+            Err(err) => Err(DbError::FileDoesNotExist),
+        }
     }
 
     pub fn add(&mut self, key: &str, value: &T) -> DbResult<()> {
-        let serialized = Table::serialize(value);
+        let serialized = Table::serialize(value).ok().unwrap();
         let mut file = File::create(self.path(key)).unwrap();
         file.write_all(serialized.as_bytes()).unwrap();
         Ok(())
@@ -98,17 +108,18 @@ impl<T: DbModel> Table<T> {
         path
     } 
 
-    fn serialize(model: &T) -> String {
-        serde_json::to_string(&model).unwrap().to_owned()
+    fn serialize(model: &T) -> Result<String, DbError> {
+        serde_json::to_string(&model).map_err(|_| DbError::BadFile)
     }
 
-    fn deserialize(model: &str) -> T {
-        let deserialized: T = serde_json::from_str(model).unwrap();
-        deserialized
+    fn deserialize(model: &str) -> Result<T, DbError> {
+        serde_json::from_str::<T>(model).map_err(|_| DbError::BadFile)
     }
 }
 
 pub enum DbError {
+    FileDoesNotExist,
+    BadFile,
     TableDoesNotExist,
 }
 
